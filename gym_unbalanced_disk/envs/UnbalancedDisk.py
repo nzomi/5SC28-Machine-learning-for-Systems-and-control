@@ -1,10 +1,14 @@
-
+#%%
 import gym
 from gym import spaces
 import numpy as np
 from scipy.integrate import solve_ivp
 from os import path
+from collections import defaultdict
 
+radian = 180/np.pi
+
+#%%
 class UnbalancedDisk(gym.Env):
     '''
     UnbalancedDisk
@@ -15,7 +19,7 @@ class UnbalancedDisk(gym.Env):
                     |
                     0  = starting location
     '''
-    def __init__(self, umax=3., dt = 0.025):
+    def __init__(self, umax=3, dt = 0.025):
         ############# start do not edit  ################
         self.g = 9.80155078791343
         self.J = 0.000244210523960356
@@ -31,12 +35,14 @@ class UnbalancedDisk(gym.Env):
 
         # change anything here (compilable with the exercise instructions)
         self.action_space = spaces.Box(low=-umax,high=umax,shape=tuple()) #continues
-        # self.action_space = spaces.Discrete(2) #discrete
+        # self.action_space = spaces.Discrete(30) #discrete
         low = [-float('inf'),-40] 
         high = [float('inf'),40]
         self.observation_space = spaces.Box(low=np.array(low,dtype=np.float32),high=np.array(high,dtype=np.float32),shape=(2,))
+        # self.observation_grid = np.linspace(-np.pi,np.pi,36)
+        # self.observation_space = spaces.MultiDiscrete(self.observation_grid.shape)
 
-        self.reward_fun = lambda self: np.exp(-(self.th%(2*np.pi)-np.pi)**2/(2*(np.pi/7)**2)) #example reward function, change this!
+        self.reward_fun = lambda self: self.th**2 + 0.1*self.omega**2 - 0.001*self.u**2 #example reward function, change this!
         
         self.viewer = None
         self.u = 0 #for visual
@@ -46,7 +52,7 @@ class UnbalancedDisk(gym.Env):
         #convert action to u
         self.u = action #continues
         # self.u = [-3,-1,0,1,3][action] #discrate
-        # self.u = [-3,3][action] #discrate
+        # self.u = np.linspace(-3,3,30)[action] #discrate
 
         ##### Start Do not edit ######
         self.u = np.clip(self.u,-self.umax,self.umax)
@@ -57,7 +63,7 @@ class UnbalancedDisk(gym.Env):
 
         reward = self.reward_fun(self)
         return self.get_obs(), reward, False, {}
-         
+
     def reset(self,seed=None):
         self.th = np.random.normal(loc=0,scale=0.001)
         self.omega = np.random.normal(loc=0,scale=0.001)
@@ -67,7 +73,7 @@ class UnbalancedDisk(gym.Env):
     def get_obs(self):
         self.th_noise = self.th + np.random.normal(loc=0,scale=0.001) #do not edit
         self.omega_noise = self.omega + np.random.normal(loc=0,scale=0.001) #do not edit
-        return [self.th_noise, self.omega_noise]
+        return [self.th_noise * radian, self.omega_noise]
 
     def render(self, mode='human'):
         import pygame
@@ -154,24 +160,27 @@ class UnbalancedDisk_sincos(UnbalancedDisk):
         super(UnbalancedDisk_sincos, self).__init__(umax=umax, dt=dt)
         low = [-1,-1,-40.] 
         high = [1,1,40.]
-        self.observation_space = spaces.Box(low=np.array(low,dtype=np.float32),high=np.array(high,dtype=np.float32),shape=(3,))
+        self.observation_space = spaces.Box(low=np.array(low,dtype=np.float32),high=np.array(high,dtype=np.float32),shape=(36,))
 
     def get_obs(self):
         self.th_noise = self.th + np.random.normal(loc=0,scale=0.001) #do not edit
         self.omega_noise = self.omega + np.random.normal(loc=0,scale=0.001) #do not edit
         return np.array([np.sin(self.th_noise), np.cos(self.th_noise), self.omega_noise]) #change anything here
 
+
+#%%
 if __name__ == '__main__':
     import time
     env = UnbalancedDisk()
-
     obs = env.reset()
     env.render()
+
     try:
-        for i in range(100):
+        for i in range(500):
             time.sleep(1/24)
-            env.step(env.action_space.sample())
+            obs, reward, done, info = env.step(env.action_space.sample())
             env.render()
+            print(f'obs = {obs}, reward = {reward}')
     finally:
         env.close()
-
+# %%

@@ -1,2 +1,4 @@
+from gym.envs.registration import register
 from gym_unbalanced_disk.envs.UnbalancedDisk import UnbalancedDisk, UnbalancedDisk_sincos
 from gym_unbalanced_disk.envs.UnbalancedDiskExp import UnbalancedDisk_exp, UnbalancedDisk_exp_sincos
+
