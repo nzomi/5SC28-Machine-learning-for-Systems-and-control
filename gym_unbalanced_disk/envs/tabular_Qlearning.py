@@ -20,6 +20,9 @@ def roll_mean(ar,start=2000,N=50): #smoothing if needed
         out[i] = k
     return out
 
+def normalization(theta):
+    return (theta+np.pi)%(2*np.pi) - np.pi
+
 # basic Qlearn
 def Qlearn(env, nsteps=5000, alpha=0.2,eps=0.2, gamma=0.99):
     Qmat = defaultdict(float) #any new argument set to zero
@@ -111,13 +114,13 @@ class Discretize(gym.Wrapper):
 
     def get_reward(self, observation, action):
 
-        alpha = 2
-        beta  = 1e-2
-        gamma = 3e-5
-
-        reward = np.exp(-((observation[0]+np.pi)%(2*np.pi)-np.pi)**2/(2*(np.pi/7)**2))
+        alpha = 20
+        beta  = 0.01
+        gamma = 0.1
+        theta = normalization(observation[0])
+        reward = np.pi - np.abs(theta) 
         # reward = observation[0]**2
-        return - alpha*reward - beta*observation[1]**2 - gamma*action**2
+        return - alpha*reward**2 - beta*observation[1]**2 - gamma*action**2
 
 
 # Start training and use different discrete observation space
@@ -126,8 +129,8 @@ def train_Qmat(env):
     Qmat, _, _ = Qlearn(env, nsteps=130000, alpha=0.2, eps=0.2, gamma=0.98)
 
     # save model
-    with open('model/Qmat_opt_tabular','wb') as Q_function:
-        pickle.dump(Qmat,Q_function)
+    # with open('model/Qmat_opt_tabular','wb') as Q_function:
+    #    pickle.dump(Qmat,Q_function)
 
     return Qmat
 

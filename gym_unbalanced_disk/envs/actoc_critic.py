@@ -139,7 +139,6 @@ def show(actor_crit,env):
         finally: #this will always run even when an error occurs
             env.close()
 
-# -------------------------------------------------------------------------
 # Training function
 def A2C_rollout(actor_crit, optimizer, env, alpha_actor=0.5, alpha_entropy=0.5, gamma=0.98, \
                 N_iterations=21, N_rollout=20000, N_epochs=10, batch_size=32, N_evals=10):
@@ -200,8 +199,6 @@ def A2C_rollout(actor_crit, optimizer, env, alpha_actor=0.5, alpha_entropy=0.5, 
     finally: #this will always run even when using the a KeyBoard Interrupt.
         print('loading best result')
         actor_crit.load_state_dict(torch.load('actor-crit-checkpoint'))
-
-
 
 def main():
 

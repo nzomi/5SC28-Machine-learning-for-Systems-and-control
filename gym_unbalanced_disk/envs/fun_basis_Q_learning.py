@@ -179,18 +179,18 @@ if __name__ == '__main__':
 
     basis_fun, theta = train_theta(env,nvec,scale,alpha)
 
-    with open('model/theta_opt_best','wb') as theta_opt:
-        pickle.dump(theta,theta_opt)
+    # with open('model/theta_opt_best','wb') as theta_opt:
+    #    pickle.dump(theta,theta_opt)
 
-    # with open('model/theta_opt_test', 'rb') as theta_opt:  
-    #    theta = pickle.load(theta_opt)
+    with open('model/theta_opt_test', 'rb') as theta_opt:  
+        theta = pickle.load(theta_opt)
 
     Qfun = lambda s: basis_fun(s)@theta
 
     try:
         obs = env.reset() #b)
         env.render() #b)
-        for i in range(1000): #b)
+        for i in range(500): #b)
             time.sleep(1/24)
             action = argmax(Qfun(obs)) #b)
             obs, reward, done, info = env.step(action) #b)
