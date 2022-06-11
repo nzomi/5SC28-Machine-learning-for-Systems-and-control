@@ -114,9 +114,9 @@ class Discretize(gym.Wrapper):
 
     def get_reward(self, observation, action):
 
-        alpha = 20
-        beta  = 0.01
-        gamma = 0.1
+        alpha = 15
+        beta  = 0.1
+        gamma = 0.01
         theta = normalization(observation[0])
         reward = np.pi - np.abs(theta) 
         # reward = observation[0]**2
@@ -126,7 +126,7 @@ class Discretize(gym.Wrapper):
 # Start training and use different discrete observation space
 def train_Qmat(env):
 
-    Qmat, _, _ = Qlearn(env, nsteps=130000, alpha=0.2, eps=0.2, gamma=0.98)
+    Qmat, _, _ = Qlearn(env, nsteps=130000, alpha=0.2, eps=0.2, gamma=0.99)
 
     # save model
     # with open('model/Qmat_opt_tabular','wb') as Q_function:

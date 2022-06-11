@@ -115,13 +115,13 @@ def main():
     with torch.no_grad():
         obs = env.reset()
         try:
-            for i in range(500):
+            for i in range(1500):
                 action = np.argmax(pi(obs)) #b=)
                 obs, reward, done, info = env.step(action)
                 traj.append(obs[0])
                 omega.append(obs[1])
                 print(obs, reward, done, info)
-                time.sleep(1/60)
+                time.sleep(1/90)
                 env.render()
         finally:
             env.close()

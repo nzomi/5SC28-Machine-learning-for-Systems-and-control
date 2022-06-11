@@ -176,8 +176,8 @@ if __name__ == '__main__':
     env.render()
 
     try:
-        for i in range(500):
-            time.sleep(1/24)
+        for i in range(2000):
+            time.sleep(1/96)
             obs, reward, done, info = env.step(env.action_space.sample())
             env.render()
             print(f'obs = {obs}, reward = {reward}')

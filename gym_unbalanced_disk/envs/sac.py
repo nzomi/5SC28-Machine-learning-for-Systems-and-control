@@ -23,11 +23,11 @@ class UnbalancedDisk_limit(UnbalancedDisk):
 
 
 
-max_episode_steps = 500
+max_episode_steps = 1000
 env = UnbalancedDisk_limit(dt=0.025, umax=3.)
 env = gym.wrappers.time_limit.TimeLimit(env, max_episode_steps=max_episode_steps)
 
-model = SAC.load('SAC_12000.zip')
+model = SAC.load('model/SAC_12000.zip')
 #model = SAC("MlpPolicy", env, learning_rate=0.01, verbose=1)
 #model.learn(total_timesteps=12000)
 #model.save('SAC_12000')
@@ -35,7 +35,7 @@ model = SAC.load('SAC_12000.zip')
 
 obs = env.reset()
 try:
-    for _ in range(1000):
+    for _ in range(2000):
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
