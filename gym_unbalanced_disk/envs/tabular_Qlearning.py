@@ -114,9 +114,9 @@ class Discretize(gym.Wrapper):
 
     def get_reward(self, observation, action):
 
-        alpha = 15
+        alpha = 10
         beta  = 0.1
-        gamma = 0.01
+        gamma = 1e-5
         theta = normalization(observation[0])
         reward = np.pi - np.abs(theta) 
         # reward = observation[0]**2
@@ -137,7 +137,7 @@ def train_Qmat(env):
 #%%
 if __name__ == '__main__':
     nvec_act = 10
-    nvec_obs = 36
+    nvec_obs = 20
     max_episode_steps = 1000
 
     env = gym.make('unbalanced-disk-v0', dt=0.025, umax=3.)

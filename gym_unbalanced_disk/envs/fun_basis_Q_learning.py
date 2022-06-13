@@ -12,7 +12,7 @@ def argmax(a):
     a = np.array(a)
     return np.random.choice(np.arange(a.shape[0],dtype=int)[a==np.max(a)])
 
-def roll_mean(ar,start=400,N=25): #smoothing if needed
+def roll_mean(ar,start=0,N=30): #smoothing if needed
     s = 1-1/N
     k = start
     out = np.zeros(ar.shape)
@@ -48,14 +48,14 @@ def make_radial_basis_network(env,nvec,scale):
     
     return basis_fun #returns a basis function
 
-def Qlearn(env, basis_fun, epsilon=0.1, alpha=0.1, gamma=0.99, nsteps=100_000, verbose=True):
+def Qlearn(env, basis_fun, epsilon=0.1, alpha=0.1, gamma=0.99, nsteps=100_000, verbose=False):
     #theta = (Nbasis, Na)
     #basis_fun(state) -> (Nbasis)
     #Q(s,.) = basis_fun(state)@theta
     env_time = env
     while not isinstance(env_time,gym.wrappers.time_limit.TimeLimit):
         env_time = env_time.env
-    ep_length = []
+    ep_reward = []
     ep_length_id = []
     
     
@@ -63,17 +63,21 @@ def Qlearn(env, basis_fun, epsilon=0.1, alpha=0.1, gamma=0.99, nsteps=100_000, v
     #init theta:
     Nbasis = basis_fun(obs).shape[0] #d=)
     theta = np.zeros((Nbasis, env.action_space.n))#d=)
-
+    # theta = np.zeros((Nbasis, 100))
     
     Q = lambda s: basis_fun(s)@theta #short-hand such that you can call Q(obs)
     
     for z in range(nsteps):
+        cum_reward = 0
         if np.random.random()<epsilon: #d)
             u = env.action_space.sample() #d)
         else: #d)
+            # print(obs)
+            # print(Q(obs))
             u = argmax(Q(obs)) #d)
         
         obs_next, reward, done, info = env.step(u) #d=)
+        cum_reward += reward
         terminal = done and not info.get('TimeLimit.truncated', False) #terminial state
         
         if terminal:
@@ -86,15 +90,16 @@ def Qlearn(env, basis_fun, epsilon=0.1, alpha=0.1, gamma=0.99, nsteps=100_000, v
         
         if done:
             if verbose: #print result only when verbose is set to True
-                print(env_time._elapsed_steps, end=' ') 
-            ep_length.append(env_time._elapsed_steps)#time-keeping
+                print(cum_reward,z, end=' ') 
+            ep_reward.append(cum_reward)#time-keeping
             ep_length_id.append(z)
-            
+
             obs = env.reset() #d=)
+            cum_reward = 0
         else:
             obs = obs_next #d=)
-
-    return theta, np.array(ep_length_id), np.array(ep_length)
+        # print(cum_reward)
+    return theta, np.array(ep_length_id), np.array(ep_reward)
 
 # discretize action
 class Discretize(gym.Wrapper):
@@ -171,18 +176,19 @@ if __name__ == '__main__':
     max_episode_steps = 500
     scale = 0.5
     alpha = 0.2
-    nvec = 18
+    nvec = 15
 
     env = UnbalancedDisk_limit(dt=0.025, umax=3.)
     env = gym.wrappers.time_limit.TimeLimit(env,max_episode_steps)
-    env = Discretize(env,24)
+    env = Discretize(env,20)
 
-    basis_fun, theta = train_theta(env,nvec,scale,alpha)
+    # basis_fun, theta = train_theta(env,nvec,scale,alpha)
 
-    # with open('model/theta_opt_best','wb') as theta_opt:
+    # with open('model/theta_opt_15','wb') as theta_opt:
     #    pickle.dump(theta,theta_opt)
 
-    with open('model/theta_opt_test', 'rb') as theta_opt:  
+    basis_fun = make_radial_basis_network(env,nvec,scale)
+    with open('model/theta_opt_15', 'rb') as theta_opt:  
         theta = pickle.load(theta_opt)
 
     Qfun = lambda s: basis_fun(s)@theta

@@ -83,9 +83,9 @@ try:
 finally:
     env.close()
 
-angle_ = np.array(angle_)
-target_ = np.array(target_)
-save_dic = dict(angle_=angle_)
-np.savez('model/angle.npz', **save_dic)
-save_dic = dict(target_=target_)
-np.savez('model/target.npz', **save_dic)
+# angle_ = np.array(angle_)
+# target_ = np.array(target_)
+# save_dic = dict(angle_=angle_)
+# np.savez('model/angle.npz', **save_dic)
+# save_dic = dict(target_=target_)
+# np.savez('model/target.npz', **save_dic)
