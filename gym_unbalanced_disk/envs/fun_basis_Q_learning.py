@@ -173,7 +173,7 @@ class UnbalancedDisk_limit(UnbalancedDisk):
 
 #%%
 if __name__ == '__main__':
-    max_episode_steps = 500
+    max_episode_steps = 1000
     scale = 0.5
     alpha = 0.2
     nvec = 15
@@ -196,8 +196,8 @@ if __name__ == '__main__':
     try:
         obs = env.reset() #b)
         env.render() #b)
-        for i in range(500): #b)
-            time.sleep(1/24)
+        for i in range(1000): #b)
+            time.sleep(1/48)
             action = argmax(Qfun(obs)) #b)
             obs, reward, done, info = env.step(action) #b)
             env.render() #b)

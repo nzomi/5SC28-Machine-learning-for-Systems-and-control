@@ -81,19 +81,17 @@ class ActorCritic(nn.Module):
         return self.critic(state), self.actor(state)
 
 
-def eval_actor(actor_crit, env):
-    pi = lambda x: actor_crit.actor(torch.tensor(x[None,:],dtype=torch.float32))[0].numpy()
-    with torch.no_grad():
-        rewards_acc = 0
-        obs = env.reset()
-        while True:
-            action = np.argmax(pi(obs)) #b=)
-            obs, reward, done, info = env.step(action)
-            rewards_acc += reward
-            if done:
-                return rewards_acc
-
-
+# def eval_actor(actor_crit, env):
+#     pi = lambda x: actor_crit.actor(torch.tensor(x[None,:],dtype=torch.float32))[0].numpy()
+#     with torch.no_grad():
+#         rewards_acc = 0
+#         obs = env.reset()
+#         while True:
+#             action = np.argmax(pi(obs)) #b=)
+#             obs, reward, done, info = env.step(action)
+#             rewards_acc += reward
+#             if done:
+#                 return rewards_acc
 
 def main():
 
@@ -106,22 +104,21 @@ def main():
     env = Discretize(env, nvec)
 
     actor_crit = ActorCritic(env, hidden_size=40)
-    actor_crit.load_state_dict(torch.load('model\A2C_best')) # nvec = 10, hidden_size = 40
-    print('load trained model successfully!')
+    actor_crit.load_state_dict(torch.load('A2C_best')) # nvec = 10, hidden_size = 40
 
     traj = []
     omega = []
-    pi = lambda x: actor_crit.actor(torch.tensor(x[None,:],dtype=torch.float32))[0].numpy()
+    Qfun = lambda x: actor_crit.actor(torch.tensor(x[None,:],dtype=torch.float32))[0].numpy()
     with torch.no_grad():
         obs = env.reset()
         try:
             for i in range(1500):
-                action = np.argmax(pi(obs)) #b=)
+                action = np.argmax(Qfun(obs)) #b=)
                 obs, reward, done, info = env.step(action)
                 traj.append(obs[0])
                 omega.append(obs[1])
-                print(obs, reward, done, info)
-                time.sleep(1/90)
+                print(action)
+                time.sleep(1/48)
                 env.render()
         finally:
             env.close()
